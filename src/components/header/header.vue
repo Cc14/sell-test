@@ -2,14 +2,14 @@
     <div class="header">
         <div class="content-wrapper">
             <div class="avatar">
-                <img :src="this.seller.avatar" alt="" width="64" height="64">
+                <img :src="seller.avatar" alt="" width="64" height="64">
             </div>
             <div class="content">
                 <div class="title">
                     <span class="brand"></span>
-                    <span class="name">{{this.seller.name}}</span>
+                    <span class="name">{{seller.name}}</span>
                 </div>
-                <div class="description">{{this.seller.description}}/{{this.seller.deliveryTime}}分钟送达</div>
+                <div class="description">{{seller.description}}/{{seller.deliveryTime}}分钟送达</div>
                 <div class="supports">
                     <span class="icon"></span>
                     <span class="text">{{seller.supports[0].description}}</span>
@@ -26,22 +26,42 @@
             <i class="iconfont bulletin-right-arrow">&#xe6a4;</i>
         </div>
         <div class="header-bg">
-            <img :src="this.seller.avatar" alt="" width="100%" height="100%">
+            <img :src="seller.avatar" alt="" width="100%" height="100%">
         </div>
         <transition>
             <div class="detail">
-
+                <h2 class="name">{{seller.name}}</h2>
+                <title-line :content="this.content[0]"></title-line>
+                <ul class="supports">
+                    <li class="supports-item" v-for="(item, index) in seller.supports" :key="index">
+                        <span class="icon" :class="classMap[index]"></span>
+                        <span class="text">{{item.description}}</span>
+                    </li>
+                </ul>
+                <title-line :content="this.content[1]"></title-line>
+                <div class="bulletin">{{seller.bulletin}}</div>
             </div>
         </transition>
     </div>
 </template>
 
 <script>
+import TitleLine from '../titleLine/line'
 export default {
   props: {
-    seller: {
-      type: Object
-    }
+    seller: Object
+  },
+  data() {
+      return {
+          content: ['优惠信息','商家公告'],
+          classMap:[]
+      }
+  },
+  components:{
+      TitleLine
+  },
+  created() {
+      this.classMap=['decrease','discount','guarantee','invoice','special']
   }
 };
 </script>
@@ -138,6 +158,7 @@ export default {
         filter blur(10px)
         z-index -1
     .detail
+        padding 64px 36px
         position fixed
         top 0
         right 0
@@ -147,5 +168,44 @@ export default {
         height 100%
         background rgba(0,0,0,.7)
         z-index 100
-
+        box-sizing border-box
+        .name
+            line-height 16px
+            font-size 16px
+            font-weight 700
+            color rgb(255,255,255)
+        .supports
+            text-align left 
+            .supports-item
+                line-height 16px
+                margin-bottom 12px
+                padding 0 12px
+                .icon
+                    display inline-block
+                    vertical-align middle
+                    width 16px
+                    height 16px
+                    background-size 16px 16px
+                    &.decrease
+                        bg-image('decrease_1')
+                    &.discount
+                        bg-image('discount_1')
+                    &.guarantee
+                        bg-image('guarantee_1')
+                    &.invoice
+                        bg-image('invoice_1')
+                    &.special
+                        bg-image('special_1')
+                .text
+                    font-size 12px
+                    line-height 12px
+                    color rgb(255,255,255)
+        .bulletin
+            margin 0 auto 
+            padding 0 12px
+            line-height 24px
+            font-size 12px
+            font-weight 200
+            color rgb(255,255,255)
+            text-align justify
 </style>
