@@ -10,17 +10,17 @@
                     <span class="name">{{seller.name}}</span>
                 </div>
                 <div class="description">{{seller.description}}/{{seller.deliveryTime}}分钟送达</div>
-                <div class="supports">
+                <div class="supports" v-if="seller.supports">
                     <span class="icon"></span>
                     <span class="text">{{seller.supports[0].description}}</span>
                 </div>
             </div>
-            <div class="supports-count">
+            <div class="supports-count" @click="detailShow"  v-if="seller.supports">
                 <span class="count">{{seller.supports.length}}个</span>
                 <i class="iconfont count-icon">&#xe6a4;</i>
             </div>
         </div>
-        <div class="bulletin-wrapper">
+        <div class="bulletin-wrapper" @click="detailShow">
             <span class="bulletin-title"></span>
             <span class="bulletin-text">{{seller.bulletin}}</span>
             <i class="iconfont bulletin-right-arrow">&#xe6a4;</i>
@@ -29,8 +29,9 @@
             <img :src="seller.avatar" alt="" width="100%" height="100%">
         </div>
         <transition>
-            <div class="detail">
+            <div class="detail" v-show="this.detailIsShow">
                 <h2 class="name">{{seller.name}}</h2>
+                <star :score="score" :num="num"></star>
                 <title-line :content="this.content[0]"></title-line>
                 <ul class="supports">
                     <li class="supports-item" v-for="(item, index) in seller.supports" :key="index">
@@ -40,6 +41,9 @@
                 </ul>
                 <title-line :content="this.content[1]"></title-line>
                 <div class="bulletin">{{seller.bulletin}}</div>
+                <div class="detail-close">
+                    <span class="iconfont" @click="detailClose">&#xe6a6;</span>
+                </div>
             </div>
         </transition>
     </div>
@@ -47,6 +51,7 @@
 
 <script>
 import TitleLine from '../titleLine/line'
+import Star from '../star/star'
 export default {
   props: {
     seller: Object
@@ -54,13 +59,25 @@ export default {
   data() {
       return {
           content: ['优惠信息','商家公告'],
-          classMap:[]
+          classMap:[],
+          score:4.1,
+          num:24,
+          detailIsShow:false
       }
   },
   components:{
-      TitleLine
+      TitleLine,
+      Star
   },
-  created() {
+  methods:{
+      detailShow() {
+          this.detailIsShow = true
+      },
+      detailClose() {
+          this.detailIsShow = false
+      }
+  },
+  created() {     
       this.classMap=['decrease','discount','guarantee','invoice','special']
   }
 };
@@ -68,6 +85,10 @@ export default {
 
 <style lang="stylus" scoped>
 @import '~stylus/mixins.styl'
+.v-enter-active, .v-leave-active 
+  transition: opacity .5s
+.v-enter, .v-leave-to 
+  opacity: 0
 .header
     position relative
     overflow hidden
@@ -126,6 +147,7 @@ export default {
             .count
                 font-size 10px
             .count-icon
+                display inline-block
                 transform rotate(-90deg)
     .bulletin-wrapper
         position relative
@@ -166,10 +188,12 @@ export default {
         left 0
         width 100%
         height 100%
-        background rgba(0,0,0,.7)
+        background rgba(7,17,27,.8)
+        blur 8px
         z-index 100
         box-sizing border-box
         .name
+            margin-bottom 16px
             line-height 16px
             font-size 16px
             font-weight 700
@@ -208,4 +232,13 @@ export default {
             font-weight 200
             color rgb(255,255,255)
             text-align justify
+        .detail-close
+            position absolute
+            left 0
+            bottom 32px
+            width 100%
+            text-align center
+            .iconfont
+                font-size 64px
+                color rgba(255,255,255,.5)
 </style>
