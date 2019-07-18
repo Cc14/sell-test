@@ -1,6 +1,17 @@
 <template>
   <div id="app">
     <v-header :seller="seller"></v-header>
+    <div class="tab">
+      <div class="tab-item">
+        <router-link to="/goods">商品</router-link>
+      </div>
+      <div class="tab-item">
+        <router-link to="/ratings">评论</router-link>
+      </div>
+      <div class="tab-item">
+        <router-link to="/seller">商家</router-link>
+      </div>
+    </div>
     <router-view/>
   </div>
 </template>
@@ -13,7 +24,8 @@ export default {
   name: "App",
   data() {
     return {
-      seller: {}
+      seller: {},
+      goods:{}
     };
   },
   created() {
@@ -21,9 +33,9 @@ export default {
       response = response.body;
       if (response.errno === ERR_OK) {
         this.seller = response.data;
-        console.log(this.seller)
       }
     });
+   
   },
   components: {
     vHeader
@@ -31,12 +43,16 @@ export default {
 };
 </script>
 
-<style>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<style lang="stylus">
+.router-link-active
+  color rgb(240,20,20)
+.tab
+  display flex
+  line-height 40px
+  height 40px
+  .tab-item
+    flex 1
+    text-align center
+    font-size 14px
+    color rgb(77,85,93)
 </style>
