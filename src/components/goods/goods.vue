@@ -15,7 +15,7 @@
                 <li class="food-list" v-for="(item, index) in goods" :key="index" ref="foodList">
                     <h1 class="title">{{item.name}}</h1>
                     <ul>
-                        <li class="food-item" v-for="(food, index) in item.foods" :key="index">
+                        <li class="food-item" @click="selectFood(food,$event)" v-for="(food, index) in item.foods" :key="index">
                             <div class="icon">
                                 <img :src="food.image" alt="" width="100%" height="100%">
                             </div>
@@ -32,20 +32,26 @@
                 </li>
             </ul>
         </div>
+        <food :food="selectedFood"></food>
     </div>
 </template>
 
 <script>
     const ERR_OK = 0
     import BScroll from 'better-scroll'
+    import food from '../food/food';
     export default {
         name:'goods',
         data() {
             return {
                 goods: [],
                 listHeight:[],
-                scrollY:0
+                scrollY:0,
+                selectedFood:{}
             }
+        },
+        components:{
+            food
         },
         computed:{
             currentIndex() {//计算左侧菜单当前滚动位置
@@ -58,6 +64,15 @@
                     }
                 }
                 return 0
+            },
+            selectFoods() {
+                let foods=[]
+                this.goods.forEach((good)=>{
+                    good.foods.forEach((food)=>{
+                        foods.push(food)
+                    })
+                })
+                return foods
             }
         },
         methods:{
@@ -83,7 +98,6 @@
                     height+=foodList[i].clientHeight
                     this.listHeight.push(height)
                 }
-                console.log(this.listHeight)
             },
             _fllowScroll(index){//根据index判断左侧菜单的滚动位置
                 let muneList = this.$refs.menuList
@@ -91,7 +105,6 @@
                 this.menuScroll.scrollToElement(el,300)
             },
             selectMenu(index, event) { //点击左侧菜单，右侧商品的滚动位置
-                console.log(index)
                 if(!event._constructed){//better-scroll的参数click为true时，会派发给event参数一个私有属性_constructed
                     return 
                 }      
@@ -100,6 +113,12 @@
                 this.foodScroll.scrollToElement(el,300)
                 
             },
+            selectFood(food,event){
+                if(!event._constructed){
+                    return 
+                }
+                this.selectedFood=food
+            }
 
         },
         created() {
