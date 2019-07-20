@@ -57,10 +57,10 @@
 .star-36
     .star-item
         display inline-block
-        margin 0 5px
-        width 30px
-        height 29px
-        background-size 30px 29px
+        margin 0 3px
+        width 18px
+        height 17px
+        background-size 18px 17px
         &.on
             bg-image('star36_on')
         &.half

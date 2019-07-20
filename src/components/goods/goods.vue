@@ -32,7 +32,7 @@
                 </li>
             </ul>
         </div>
-        <food :food="selectedFood"></food>
+        <food :food="selectedFood" ref="food"></food>
     </div>
 </template>
 
@@ -118,6 +118,7 @@
                     return 
                 }
                 this.selectedFood=food
+                this.$refs.food.foodShow()
             }
 
         },

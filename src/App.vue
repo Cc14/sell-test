@@ -9,10 +9,10 @@
         <router-link to="/ratings">评论</router-link>
       </div>
       <div class="tab-item">
-        <router-link to="/seller">商家</router-link>
+        <router-link to="/seller" :seller="seller" :text="text">商家</router-link>
       </div>
     </div>
-    <router-view/>
+    <router-view :seller="seller" />
   </div>
 </template>
 
@@ -25,7 +25,8 @@ export default {
   data() {
     return {
       seller: {},
-      goods:{}
+      goods:{},
+      text:'textaaaa'
     };
   },
   created() {
@@ -33,6 +34,7 @@ export default {
       response = response.body;
       if (response.errno === ERR_OK) {
         this.seller = response.data;
+        console.log(this.seller)
       }
     });
    
