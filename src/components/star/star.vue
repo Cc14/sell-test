@@ -44,10 +44,10 @@
 .star-24
     .star-item
         display inline-block
-        margin 0 5px
-        width 20px
-        height 19px
-        background-size 20px 19px
+        margin 0 2px
+        width 12px
+        height 11px
+        background-size 12px 11px
         &.on
             bg-image('star24_on')
         &.half
@@ -57,10 +57,10 @@
 .star-36
     .star-item
         display inline-block
-        margin 0 3px
-        width 18px
-        height 17px
-        background-size 18px 17px
+        margin 0 2px
+        width 15px
+        height 14px
+        background-size 15px 14px
         &.on
             bg-image('star36_on')
         &.half
