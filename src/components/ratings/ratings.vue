@@ -1,5 +1,5 @@
 <template>
-    <div class="ratings">
+    <div class="ratings" ref="ratings">
         <div class="ragints-content">
             <div class="overview">
                 <div class="overview-left">
@@ -25,10 +25,16 @@
                 </div>
             </div>
             <split></split>
-            <ratingselect></ratingselect>
+            <ratingselect 
+                @toggle="ratingToggleContext" 
+                @select="selectRating" 
+                :selectType="selectType" 
+                :ratings="ratings" 
+                :onlyContent="onlyContent"
+            ></ratingselect>
             <div class="ratings-wrap">
                 <ul>
-                    <li v-for="(rating, index) in ratings" :key="index" class="rating-item">
+                    <li v-show="needShow(rating.rateType,rating.text)" v-for="(rating, index) in ratings" :key="index" class="rating-item">
                         <div class="avatar">
                             <img :src="rating.avatar" alt="" width="28" height="28">
                         </div>
@@ -58,7 +64,10 @@
     import split from '../split/split';
     import star from '../star/star';
     import ratingselect from '../ratingselect/ratingselect';
+    import {formatDate} from '@/common/js/date';
+    import BScroll from 'better-scroll';
     const ERR_OK = 0
+    const ALL = 2
     export default {
         name:'ratings',
         props:{
@@ -66,7 +75,9 @@
         },
         data() {
             return {
-                ratings: []
+                ratings: [],
+                onlyContent:true,
+                selectType:2
             }
         },
         components:{
@@ -75,16 +86,38 @@
             ratingselect
         },
         filters : {
-            formatDate: function(date){
-                    date=new Date(date)
-                    let Y=date.getFullYear()
-                    let M = date.getMonth() + 1
-                    let d = date.getDate()
-                    let h = date.getHours()
-                    let m = date.getMinutes()
-                    let s = date.getSeconds()
-
-                return Y+'-'+M+'-'+d+' '+h+':'+m+':'+s
+            formatDate (date){
+                date=new Date(date)
+                return formatDate(date,'yyyy-MM-dd hh:mm')
+            }
+        },
+        methods : {
+            _initScroll() {
+                this.scroll= new BScroll(this.$refs.ratings,{
+                    click:true
+                })
+            },
+            ratingToggleContext() {//显示隐藏是否有评论内容
+                this.onlyContent = !this.onlyContent
+                this.$nextTick(()=>{
+                    this.scroll.refresh()
+                })
+            },
+            selectRating(type) {
+                this.selectType = type
+                this.$nextTick(()=>{
+                    this.scroll.refresh()
+                })
+            },
+            needShow(type,text) {
+                if(this.onlyContent && !text){
+                    return false
+                }
+                if(this.selectType === ALL){
+                    return true 
+                }else{
+                    return type === this.selectType
+                }
             }
         },
         created() {
@@ -92,7 +125,9 @@
                 response=response.body
                 if (response.errno === ERR_OK) {
                     this.ratings = response.data;
-                    console.log(this.ratings)
+                    this.$nextTick(()=>{
+                        this._initScroll()
+                    })
                 }
             })
         }
@@ -100,6 +135,11 @@
 </script>
 
 <style lang="stylus" scoped>
+.ratings
+    position absolute
+    top 174px
+    bottom 46px
+    overflow hidden
 .overview
     display flex
     padding 16px 0

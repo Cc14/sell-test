@@ -30,7 +30,7 @@
                 if(isHalf){
                     result.push('half')
                 }
-                if(result.length<5){
+                while(result.length<5){
                     result.push('off')
                 }
                 return result

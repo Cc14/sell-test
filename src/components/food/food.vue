@@ -1,5 +1,5 @@
 <template>
-    <div class="food" v-show="foodFlag" ref="foodWrap">
+    <div class="food" v-show="this.foodFlag" ref="foodWrap">
         <div class="food-content">
             <div class="image-header">
                 <img :src="food.image" alt="">
@@ -25,34 +25,65 @@
                 <p class="text">{{food.info}}</p>
             </div>
             <split></split>
+            <rating-select 
+                @toggle="ratingToggleContext"
+                @select="selectRating"
+                :ratings="food.ratings"    
+                :onlyContent="onlyContent"
+                :selectType="selectType"
+            ></rating-select>
             <div class="rating">
                 <h1 class="title">商品评价</h1>
-                
+                <ul>
+                    <li 
+                        v-show="needShow(rating.rateType,rating.text)" 
+                        v-for="(rating, index) in food.ratings" 
+                        :key="index" 
+                        class="rating-item"
+                    >
+                        <div class="user">
+                            <span class="name">{{rating.username}}</span>
+                            <img :src="rating.avatar" alt="" class="avatar">
+                        </div>
+                        <div class="time">{{rating.rateTime | formatDate }}</div>
+                        <p class="text">
+                            <span class="iconfont" :class="{'on': selectType === 1}">&#xe65d;</span>
+                            {{rating.text}}
+                        </p>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
+
 </template>
 
 <script>
 import BScroll from 'better-scroll';
 import split from '../split/split'
+import ratingSelect from '../ratingselect/ratingselect'
+import {formatDate} from '@/common/js/date';
+const ALL = 2
     export default {
         props:{
             food:Object
         },
         data() {
             return {
-                foodFlag: false
+                foodFlag: false,
+                onlyContent:true,
+                selectType:ALL
             }
         },
         components:{
-            split
+            split,
+            ratingSelect
         },
         methods:{
             foodHide() {
                 this.foodFlag = false
             },
-            foodShow() {
+            foodShow() {         
                 this.foodFlag = true
                 this.$nextTick(()=>{
                     let foodScroll = new BScroll(this.$refs.foodWrap,{
@@ -60,8 +91,32 @@ import split from '../split/split'
                     })
                 })
                 
+            },
+            ratingToggleContext() {//显示隐藏是否有评论内容
+                this.onlyContent = !this.onlyContent
+            },
+            selectRating(type) {
+                this.selectType = type
+
+            },
+            needShow(type,text) {
+                if(this.onlyContent && !text){
+                    return false
+                }
+                if(this.selectType === ALL){
+                    return true 
+                }else{
+                    return type === this.selectType
+                }
+            }
+        },
+        filters : {
+            formatDate (date){
+                date=new Date(date)
+                return formatDate(date,'yyyy-MM-dd hh:mm')
             }
         }
+
     }
 </script>
 
@@ -157,6 +212,41 @@ import split from '../split/split'
                 line-height 14px
                 font-size 14px
                 color rgb(7,17,27)
+            .rating-item
+                margin 0 18px
+                padding 18px 0
+                position relative
+                border-bottom 1px solid rgba(7,17,27,.1)
+                .user
+                    position absolute
+                    top 0
+                    right 0
+                    .name
+                        line-height 12px
+                        font-size 10px
+                        color rgb(147,153,159)
+                    .avatar
+                        width 12px
+                        height 12px
+                        border-radius 50%
+                        vertical-align middle
+                .time
+                    line-height 12px
+                    font-size 10px
+                    color rgb(147,153,159)
+                .text
+                    line-height 16px
+                    font-size 12px
+                    color rgb(7,17,27)
+                    .iconfont
+                        display inline-block
+                        line-height 24px
+                        font-size 12px
+                        color rgb(0,160,220)
+                        &.on
+                            color rgb(147,153,159)
+                            transform rotateX(180deg) rotateY(180deg)
+
 
                     
 

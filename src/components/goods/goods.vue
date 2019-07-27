@@ -2,7 +2,14 @@
     <div class="goods">
         <div class="menu-wrapper" ref="menuWrapper">
             <ul>
-                <li class="menu-item" ref="menuList" v-for="(item, index) in goods" :class="{'active':currentIndex==index}" :key="index" @click="selectMenu(index,$event)">
+                <li 
+                    class="menu-item" 
+                    ref="menuList" 
+                    v-for="(item, index) in goods" 
+                    :class="{'active':currentIndex==index}" 
+                    :key="index" 
+                    @click="selectMenu(index,$event)"
+                >
                     <span class="text">
                         <span class="icon"></span>
                         {{item.name}}
@@ -15,7 +22,12 @@
                 <li class="food-list" v-for="(item, index) in goods" :key="index" ref="foodList">
                     <h1 class="title">{{item.name}}</h1>
                     <ul>
-                        <li class="food-item" @click="selectFood(food,$event)" v-for="(food, index) in item.foods" :key="index">
+                        <li 
+                            class="food-item" 
+                            @click="selectFood(food,$event)" 
+                            v-for="(food, index) in item.foods" 
+                            :key="index"
+                        >
                             <div class="icon">
                                 <img :src="food.image" alt="" width="100%" height="100%">
                             </div>
@@ -27,12 +39,14 @@
                                     <span>好评率{{food.rating}}%</span>
                                 </div>
                             </div>
+                            <cart-control></cart-control>
                         </li>
                     </ul>
                 </li>
             </ul>
         </div>
         <food :food="selectedFood" ref="food"></food>
+        <shopcart></shopcart>
     </div>
 </template>
 
@@ -40,6 +54,8 @@
     const ERR_OK = 0
     import BScroll from 'better-scroll'
     import food from '../food/food';
+    import shopcart from '../shopcart/shopcart';
+    import cartControl from '../cartcontrol/cartcontrol'
     export default {
         name:'goods',
         data() {
@@ -51,7 +67,9 @@
             }
         },
         components:{
-            food
+            food,
+            shopcart,
+            cartControl
         },
         computed:{
             currentIndex() {//计算左侧菜单当前滚动位置
@@ -174,9 +192,11 @@
             color rgb(147,153,159)
             line-height 26px  
         .food-item
+            position relative
             display flex
             margin 18px
             padding-bottom 18px
+            border-bottom 1px solid rgba(7,17,27,.1)
             .icon
                 flex 0 0 57px
                 margin-right 10px
@@ -200,6 +220,10 @@
                     line-height 10px
                     .count
                         margin-right 12px
+            .cartcontrol-wrapper
+                position absolute
+                right 0
+                bottom 18px
 
 
             
