@@ -1,7 +1,9 @@
 <template>
     <div class="cartcontrol-wrapper">
         <div class="cartcontrol">
-            <div class="cart-decrease iconfont">&#xe7df;</div>
+            <div class="cart-decrease">
+                <span class="inner iconfont">&#xe7df;</span>
+            </div>
             <div class="cart-count">3</div>
             <div class="cart-add iconfont">&#xe7e0;</div>
         </div>
@@ -10,7 +12,9 @@
 
 <script>
     export default {
-        
+        props:{
+            food:Object
+        }
     }
 </script>
 

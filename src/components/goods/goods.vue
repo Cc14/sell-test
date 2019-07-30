@@ -39,7 +39,7 @@
                                     <span>好评率{{food.rating}}%</span>
                                 </div>
                             </div>
-                            <cart-control></cart-control>
+                            <cart-control :food="food"></cart-control>
                         </li>
                     </ul>
                 </li>
