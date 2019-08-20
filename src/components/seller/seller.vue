@@ -28,9 +28,9 @@
                         </div>
                     </li>
                 </ul>
-                <div class="favorite">
-                    <span class="iconfont icon-heart-fill"></span>
-                    <span class="text">收藏</span>
+                <div class="favorite" @click="toggleFavorite">
+                    <span class="iconfont icon-heart-fill" :class="{'active':this.favorite}"></span>
+                    <span class="text">{{favoriteText}}</span>
                 </div>
             </div>
             <split></split>
@@ -74,16 +74,28 @@
     import BScroll from 'better-scroll';
     import star from '../star/star';
     import split from '../split/split';
+    import {saveToLocal, loadFromLocal} from '@/common/js/store';
     export default {
         name:'seller',
         props: {
             seller: Object,
             text:String
         },
-        
+        data() {
+            return {
+                favorite: (()=>{
+                    return loadFromLocal(this.seller.id,'favorite',false)
+                })
+            }
+        },
         components:{
             star,
             split
+        },
+        computed:{
+            favoriteText() {
+                return this.favorite ? '已收藏' : '收藏'
+            }
         },
         methods: {
             _initScroll(){
@@ -97,7 +109,6 @@
             },
             _initPics() {
                     if(this.seller.pics){
-                        console.log()
                         let len = this.seller.pics.length
                         this.$refs.picList.style.width = 120*len+6*(len-1) + 'px'
                         this.$nextTick(()=>{
@@ -108,11 +119,17 @@
                     }
                     
                 
+            },
+            toggleFavorite(event) {
+                if(!event._constructed){
+                    return ;
+                }
+                this.favorite = ! this.favorite
+                saveToLocal(this.seller.id,'favorite',this.favorite)
             }
         },
         watch: {
             seller(val) {//当前页面刷新执行watch ,从其他页面切换到当前页面执行mounted
-                console.log(val)
                 this._initScroll()
                 this._initPics()
             }
@@ -183,12 +200,16 @@
             position: absolute;
             top: 18px;
             right: 18px;
+            width: 50px;
+            text-align center
             .iconfont
                 display: block;
                 margin-bottom: 4px;
                 line-height: 24px;
                 font-size: 24px;
                 color: rgb(147, 153, 159);
+                &.active
+                    color rgb(240,20,20)
             .text
                 line-height: 10px;
                 font-size: 10px;

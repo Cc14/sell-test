@@ -39,14 +39,14 @@
                                     <span>好评率{{food.rating}}%</span>
                                 </div>
                             </div>
-                            <cart-control :food="food"></cart-control>
+                            <cart-control :food="food" @cartAdd="addFood"></cart-control>
                         </li>
                     </ul>
                 </li>
             </ul>
         </div>
-        <food :food="selectedFood" ref="food"></food>
-        <shopcart></shopcart>
+        <food :food="selectedFood" @cartAdd="addFood" ref="food"></food>
+        <shopcart ref="shopcart" :select-foods="selectFoods" @cartAdd="addFood"></shopcart>
     </div>
 </template>
 
@@ -87,11 +87,15 @@
                 let foods=[]
                 this.goods.forEach((good)=>{
                     good.foods.forEach((food)=>{
-                        foods.push(food)
+                        if(food.count){   //判断是否有count属性，有count属性说明已经添加购物车了
+                            foods.push(food)
+                        }
+                        
                     })
                 })
                 return foods
-            }
+            },
+            
         },
         methods:{
             _initScroll() {//初始化scroll
@@ -137,6 +141,15 @@
                 }
                 this.selectedFood=food
                 this.$refs.food.foodShow()
+            },
+            addFood(target){
+                this._drop(target)
+ 
+            },
+            _drop(target){
+                this.$nextTick(()=>{
+                    this.$refs.shopcart.drop(target)
+                })
             }
 
         },

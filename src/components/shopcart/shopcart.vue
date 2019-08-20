@@ -1,6 +1,6 @@
 <template>
     <div class="shopcart">
-        <div class="content">
+        <div class="content" @click="toggleList">
             <div class="content-left">
                 <div class="logo-wrapper">
                     <div class="logo" :class="{'highlight':totalPrice>0}">
@@ -17,52 +17,50 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="shopcart-list">
-            <div class="list-header">
-                <h1 class="title">购物车</h1>
-                <span class="empty">清空</span>
+        <div class="ball-container">
+            <div v-for="(ball, index) in balls" :key="index">
+                <transition 
+                    name="drop"
+                    @before-enter="beforeDrop"
+                    @enter="dropping"
+                    @after-enter="afterDrop"
+                >
+                    <div class="ball" v-show="ball.show">
+                        <div class="inner inner-hook"></div>
+                    </div>    
+                </transition>           
             </div>
-            <div class="list-content">
-                <ul>
-                    <li class="food">
-                        <span class="name">莲子核桃黑米粥</span>
-                        <div class="price">￥<span class="text">10</span></div>
-                        <cart-control></cart-control>
-                    </li>
-                    <li class="food">
-                        <span class="name">莲子核桃黑米粥</span>
-                        <div class="price">￥<span class="text">10</span></div>
-                        <cart-control></cart-control>
-                    </li>
-                    <li class="food">
-                        <span class="name">莲子核桃黑米粥</span>
-                        <div class="price">￥<span class="text">10</span></div>
-                        <cart-control></cart-control>
-                    </li>
-                </ul>
+        </div>
+        <transition name="fold">      
+            <div class="shopcart-list" v-show="listShow">
+                <div class="list-header">
+                    <h1 class="title">购物车</h1>
+                    <span class="empty" @click="empty">清空</span>
+                </div>
+                <div class="list-content" ref="listContent">
+                    <ul>
+                        <li class="food" v-for="(food,index) in selectFoods" :key="index">
+                            <span class="name">{{food.name}}</span>
+                            <div class="price">￥<span class="text">{{food.price}}</span></div>
+                            <cart-control :food="food" @cartAdd="addFood"></cart-control>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div> -->
+        </transition>
     </div>
 </template>
 
 <script>
+import BScroll from 'better-scroll';
 import cartControl from '../cartcontrol/cartcontrol'
     export default {
         components:{
             cartControl
         },
         props:{
-            selectFood:{
-                type: Array,
-                default(){
-                    return [
-                        {
-                            price:30,
-                            count:2
-                        }
-                    ]
-                        
-                }
+            selectFoods:{
+                type: Array
             },
             minPrice:{
                 type:Number,
@@ -70,17 +68,40 @@ import cartControl from '../cartcontrol/cartcontrol'
             }
             
         },
+        data() {
+            return {
+                balls: [
+                    {
+                        show:false
+                    },
+                    {
+                        show:false
+                    },
+                    {
+                        show:false
+                    },
+                    {
+                        show:false
+                    },
+                    {
+                        show:false
+                    }
+                ],
+                dropBalls:[],
+                fold:false
+            }
+        },
         computed:{
             totalPrice(){//商品总价格
                 let total = 0
-                this.selectFood.forEach((food)=>{
-                    total = food.price * food.count
+                this.selectFoods.forEach((food)=>{
+                    total += food.price * food.count
                 })
                 return total
             },
             totalCount(){//商品总数量
                 let count = 0
-                this.selectFood.forEach((food)=>{
+                this.selectFoods.forEach((food)=>{
                     count +=food.count
                 })
                 return count
@@ -102,6 +123,89 @@ import cartControl from '../cartcontrol/cartcontrol'
                 }else{
                     return 'enough'
                 }
+            },
+            listShow(){
+                if(!this.totalCount){
+                    this.fold=true
+                    return false
+                }
+                let show = !this.fold
+                if(show){
+                    this.$nextTick(()=>{
+                        if(!this.scroll){
+                            this.scroll = new BScroll(this.$refs.listContent,{
+                                click:true
+                            })
+                        }else{
+                            this.scroll.refresh()
+                        }
+                        
+                    })
+                }
+                return show
+            }
+            
+        },
+        methods:{
+            drop(el){//beforeEnter
+               for(let i=0;i<this.balls.length;i++){
+                   let ball = this.balls[i]
+                   if(!ball.show){
+                       ball.show=true
+                       ball.el=el
+                       this.dropBalls.push(ball)
+                       return 
+                   }
+               }
+            },
+            beforeDrop(el,done){//Enter
+                let count = this.balls.length
+                while(count--){
+                    let ball = this.balls[count]
+                    if(ball.show){
+                        let rect = ball.el.getBoundingClientRect()
+                        let x=rect.left -32
+                        let y=-(window.innerHeight - rect.top -36)
+                        el.style.display=''
+                        el.style.webkitTransform = `translate3d(0,${y}px,0)`
+                        el.style.transform = `translate3d(0,${y}px,0)`
+                        let inner = el.getElementsByClassName('inner-hook')[0]
+                        inner.style.webkitTransform=`translate3d(${x}px,0,0)`
+                        inner.style.transform=`translate3d(${x}px,0,0)`
+                    }
+                }
+            },
+            dropping(el,done){//afterEnter
+                let rf = el.offsetHeight
+                this.$nextTick(()=>{
+                    el.style.webkitTransform = 'translate3d(0,-10px,0)'
+                    el.style.transform = 'translate3d(0,-10px,0)'
+                    let inner = el.getElementsByClassName('inner-hook')[0]
+                    inner.style.webkitTransform = 'translate3d(0,0,0)'
+                    inner.style.transform = 'translate3d(0,0,0)'
+                    el.addEventListener('transitionend',done)  //当动画结束，会有css3 transitionend 事件派发
+                })
+            },
+            afterDrop(el){
+                let ball = this.dropBalls.shift()  
+                if(ball){
+                    ball.show=false
+                    el.style.display = 'none'
+                }
+            },
+            toggleList(){
+                if(!this.totalCount){
+                    return ;
+                }
+                this.fold = !this.fold
+            },
+            empty() {
+                this.selectFoods.forEach((food)=>{
+                    food.count=0
+                })
+            },
+            addFood(target){
+                this.$emit('cartAdd',target)
             }
         }
     }
@@ -195,6 +299,22 @@ import cartControl from '../cartcontrol/cartcontrol'
                 &.enough
                     background #00b43c
                     color #fff
+    .ball-container
+        .ball
+            position fixed
+            left 32px
+            bottom 22px
+            z-index 200
+            .inner
+                display inline-block
+                width 16px
+                height 16px
+                border-radius 50%
+                background rgb(0,160,220)
+            &.drop-enter-active
+                transition: all .5s cubic-bezier(.49, -0.29, .75, .41);
+                .inner
+                    transition all .5s linear
     .shopcart-list
         position absolute
         left 0
@@ -203,6 +323,10 @@ import cartControl from '../cartcontrol/cartcontrol'
         background #fff
         transform translate3d(0,-100%,0)
         z-index 2
+        &.fold-enter-active,&.fold-leave-active
+            transition all .3s
+        &.fold-enter,&.fold-leave-to
+            transform translate3d(0,0,0)
         .list-header
             padding 0 18px
             line-height 40px
@@ -222,6 +346,9 @@ import cartControl from '../cartcontrol/cartcontrol'
         .list-content   
             padding 0 18px 18px 18px
             background #ffffff
+            max-height 217px
+            height auto!important
+            overflow hidden
             .food
                 position relative
                 padding 12px 0

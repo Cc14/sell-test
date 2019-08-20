@@ -17,7 +17,12 @@
                     <span class="now"><span class="now-icon">￥</span>{{food.price}}</span>
                     <span class="old" v-show="food.oldPrice"><span class="old-icon">￥</span>{{food.oldPrice}}</span>
                 </div>
-                <div class="buy">加入购物车</div>
+                <transition name="fade">
+                    <div class="buy" @click.stop.prevent="addFirst" ref="buy" v-show="!food.count || food.count===0">加入购物车</div>
+                </transition>
+                <div class="cart-control-wrap">
+                    <cart-control :food="food" @cartAdd="addFood"></cart-control>
+                </div>
             </div>
             <split></split>
             <div class="info">
@@ -53,15 +58,18 @@
                     </li>
                 </ul>
             </div>
+            
         </div>
     </div>
 
 </template>
 
 <script>
+import Vue from 'vue'
 import BScroll from 'better-scroll';
 import split from '../split/split'
 import ratingSelect from '../ratingselect/ratingselect'
+import cartControl from '../cartcontrol/cartcontrol'
 import {formatDate} from '@/common/js/date';
 const ALL = 2
     export default {
@@ -77,7 +85,8 @@ const ALL = 2
         },
         components:{
             split,
-            ratingSelect
+            ratingSelect,
+            cartControl
         },
         methods:{
             foodHide() {
@@ -108,6 +117,19 @@ const ALL = 2
                 }else{
                     return type === this.selectType
                 }
+            },
+            addFirst(event){
+                if(!event._constructed){
+                    return ;
+                }
+                setTimeout(()=>{//确保点击的时候小球的位置获取成功
+                    Vue.set(this.food,'count',1)
+                },60)
+                
+                this.$emit('cartAdd',event.target) //子组件向父组件传值
+            },
+            addFood(target){
+                this.$emit('cartAdd',target)
             }
         },
         filters : {
@@ -193,6 +215,17 @@ const ALL = 2
                 font-size 10px
                 color rgb(255,255,255)
                 text-align center
+                z-index 2
+                opacity 1
+                &.fade-enter-active,&.fade-leave-acitive
+                    transition all .4s
+                &.fade-enter,&.fade-leave-to
+                    opacity 0
+            .cart-control-wrap
+                position absolute
+                bottom 18px
+                right 18px
+                z-index 1
         .info
             padding 18px
             .title
